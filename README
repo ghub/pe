@@ -158,3 +158,70 @@ Binaries
   e.g.
     <<1, 2>>
     <<3::size(2), 5::size(4), 1::size(2)>>
+
+Names
+  BumpyCase
+    Module
+    Record
+    Protocol
+    Behavior
+  snake_case
+    Others
+
+Truth
+  true (truthy: neither false nor nil in most contexts)
+  false
+  nil (treated as false in Boolean context)
+
+Operators
+  Comparison operators
+    a === b # strict equality, so 1 === 1.0 is false
+    a !== b # strict inequality, so 1 !== 1.0 is true
+    a == b # value equality, so 1 == 1.0 is true
+    a != b # value inequality, so 1 != 1.0 is false
+    a > b
+    a >= b
+    a < b
+    a <= b
+    ordering comparisons
+      number < atom < reference < function < port < pid < tuple < map < list < binary
+  Boolean operators
+    Strict: expect true or false as first argument
+      a or b # true if a is true, otherwise b
+      a and b # false if a is false, otherwise b
+      not a # false if a is true, true otherwise
+    Relaxed: take arguments of any type. Any value other than false or nil is true.
+      a || b # a if a is truthy, otherwise b
+      a && b # b if a is truthy, otherwise a
+      !a # false if a is truthy, otherwise true
+  Arithmatic operators
+    +
+    -
+    *
+    / # integer division yields floating point result, e.g. 2 / 1 => 2.0
+    div # div(a, b) gets integer result
+    rem # result has the same sign as first argument, e.g. rem(15, 4) => 3, rem(-15, 4) => -3
+  Join operators
+    binary1 <> binary2 # cancatenates two binaries
+    list1 ++ list2 # cancatenates two lists
+    list1 -- list2 # returns elements in list1 but not in list2
+  The in operator
+    a in enum # test if a is included in enum, e.g. a list or a range
+
+Variable Scope
+  Lexically scoped
+    Variables (including parameters) defined in a function are local to that function.
+    Variables defined in a module are local.
+      They are only accessible at the top level of the module.
+      They are not accessible in functions defined in the module.
+    For
+    With
+
+with
+  Defines a local scope for variables
+  Pattern matching
+    = would raise MatchError
+    <- would return the value that couldn't be matched
+  Gotcha
+    with is treated as if it were a call to function or macro,
+    so it must be followed by parameter or parenthesis on the same line
