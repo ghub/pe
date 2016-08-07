@@ -4,224 +4,455 @@ Dave Thomas
 
 Chapter 1: Take the Red Pill
 
-Programming should be about transforming data.
+  Programming Should Be About Transforming Data
+  Installing Elixir
+  Running Elixir
+  Suggestions for Reading the Book
+  Exercises
+  Think Different(ly)
 
 Part 1 Conventional Programming
 
-= match operator
-[1, 2, 3] list
-[a, b, c] = [1, 2, 3] pattern matching
+Chapter 2 Pattern Matching
 
-Exercise: PatternMatching-1
+  Assignment: I Do Not Think It Means What You Think It Means.
 
-a = [1, 2, 3] will match => a = [1, 2, 3]
-a = 4 will match => a = 4
-4 = a will match => a = 4
-[a, b] = [1, 2, 3] will not match
-a = [[1, 2, 3]] will match a = [[1, 2, 3]]
-[a] = [[1, 2, 3]] will match a = [1, 2, 3]
-[[a]] = [[1, 2, 3]] will not match
+    = match operator
 
-Ignoring a value with _ (underscore)
+  More Complex Matches
 
-Variable bind once (per match)
+    [1, 2, 3] list
+    [a, b, c] = [1, 2, 3] pattern matching
 
-^ (a caret) pin operator
+  Your Turn
 
-Exercise: PatternMatching-2
+    Exercise: PatternMatching-1
+    Which of the following will match?
 
-[a, b, a] = [1, 2, 3] will not match
-[a, b, a] = [1, 1, 2] will not match
-[a, b, a] = [1, 2, 1] will match => a = 1, b = 2
+      a = [1, 2, 3] # will match => a = [1, 2, 3]
+      a = 4 # will match => a = 4
+      4 = a # will match => a = 4
+      [a, b] = [1, 2, 3] # will not match
+      a = [[1, 2, 3]] # will match a = [[1, 2, 3]]
+      [a] = [[1, 2, 3]] # will match a = [1, 2, 3]
+      [[a]] = [[1, 2, 3]] # will not match
 
-Exercise: PatternMatching-3
+  Ignoring a Value with _ (Underscore)
 
-Given a = 2
+  Variables Bind Once (per Match)
 
-[a, b, a] = [1, 2, 3] will not match
-[a, b, a] = [1, 1, 2] will not match
-a = 1 will match => a = 1
-^a = 2 will match => a = 2
-^a = 1 will not match
-^a = 2 - a will not match
+    ^ (a caret) pin operator
 
-Built-in types
-  Value types
-    Arbitray-sized integers
+  Your Turn
+
+    Exercise: PatternMatching-2
+    Which of the following will match?
+
+      [a, b, a] = [1, 2, 3] # will not match
+      [a, b, a] = [1, 1, 2] # will not match
+      [a, b, a] = [1, 2, 1] # will match => a = 1, b = 2
+
+    Exercise: PatternMatching-3
+    The variable a is bound to 2. Which of the following will match?
+
+      [a, b, a] = [1, 2, 3] # will not match
+      [a, b, a] = [1, 1, 2] # will not match
+      a = 1 # will match => a = 1
+      ^a = 2 # will match => a = 2
+      ^a = 1 # will not match
+      ^a = 2 - a # will not match
+
+  Another Way of Looking at the Equals Sign
+
+Chapter 3 Immutability
+
+  You Already Have (Some) Immutable Data
+  Immutable Data Is Known Data
+  Performance Implications of Immutability
+  Coding with Immutable Data
+
+Chapter 4 Elixir Basics
+
+  Built-in Types
+
+    Value types
+      Arbitray-sized integers
+      Floating-point numbers
+      Atoms
+      Ranges
+      Regular expressions
+    System types
+      PIDs and ports
+      References
+    Collection types
+      Tuples
+      Lists
+      Maps
+      Binaries
+
+  Value Types
+
+    Integers
+      Unlimited size
+      e.g.
+        Decimal 1234 1_000_000
+        Hexadicimal 0xcafe
+        Octal 0o765
+        Binary 0b1010
     Floating-point numbers
+      Must contain one dicimal with at least one digit on each side
+      May contain trailing exponent
+      IEEE 754 double precision
+      e.g.
+        1.0
+        0.2456
+        0.314159e1
+        314159.0e-5
     Atoms
+      Constants that represent names
+      : followed by atom word or Elixir operator
+      Atom word may contain
+        Letters
+        Digits
+        Underscores
+        @ signs
+      May end with
+        !
+        ?
+      :"arbitray characters"
+      e.g.
+        :fred
+        :is_binary?
+        :var@2
+        :<>
+        :===
+        :"func/3"
+        :"long john silver"
     Ranges
+      start..end
+      start and end must be integer
     Regular expressions
-  System types
-    PIDs and ports
-    References
-  Collection types
+      ~r{regexp} or ~r{regexp}opts
+      Delimeters can be any non-alpha-numeric characters
+      / must be escaped if / is the delimeter
+      Implemened with PCRE, compatible with Perl 5
+
+  System Types
+
+    PID refers to a local or remote process
+    Port refers to a resource you are reading or writing
+    Current process' PID is availale by calling self
+    make_ref creates a globally unique reference
+
+  Collection Types
+
     Tuples
+      Ordered collection of values
+      Typically has 2 to 4 elements, if more, use maps or structs
+      Common for functions to return a tuple that begins with :ok if successful
+      e.g.
+        {1, 2}
+        {:ok, 42, "next"}
+        {:error, :enoent}
     Lists
-    Maps
-    Binaries
+      Linked list
+      Operators
+        ++
+        --
+        in
+    Keyword Lists
+      [name: "Dave", city: "Dallas", likes: "Programming"] =>
+      [{:name, "Dave"}, {:city, "Dallas"}, {:likes, "Programming"}]
+      May leave off the square brackets if a keyword list is the last element in a function call
+      May leave off the brackets if a keyword list appears as the last item in any conext where
+        a list of value is expected
 
-Value types
-  Integers
-    Unlimited size
-    e.g.
-      Decimal 1234 1_000_000
-      Hexadicimal 0xcafe
-      Octal 0o765
-      Binary 0b1010
-  Floating-point numbers
-    Must contain one dicimal with at least one digit on each side
-    May contain trailing exponent
-    IEEE 754 double precision
-    e.g.
-      1.0
-      0.2456
-      0.314159e1
-      314159.0e-5
-  Atoms
-    Constants that represent names
-    : followed by atom word or Elixir operator
-    Atom word may contain
-      Letters
-      Digits
-      Underscores
-      @ signs
-    May end with
-      !
-      ?
-    :"arbitray characters"
-    e.g.
-      :fred
-      :is_binary?
-      :var@2
-      :<>
-      :===
-      :"func/3"
-      :"long john silver"
-  Ranges
-    start..end
-    start and end must be integer
-  Regular expressions
-    ~r{regexp} or ~r{regexp}opts
-    Delimeters can be any non-alpha-numeric characters
-    / must be escaped if / is the delimeter
-    Implemened with PCRE, compatible with Perl 5
+  Maps
 
-System types
-  Resources in the Erlang VM
-  PID refers to a local or remote process
-  Port refers to a resource you are reading or writing
-  Current process' PID is availale by calling self
-  make_ref creates a globally unique reference
-
-Collection types
-  Tuples
-    Ordered collection of values
-    Typically has 2 to 4 elements, if more, use maps or structs
-    Common for functions to return a tuple that begins with :ok if successful
+    Collection of key/value pairs
     e.g.
-      {1, 2}
-      {:ok, 42, "next"}
-      {:error, :enoent}
-  Lists
-    Linked list
+      states = %{"AL" => "Alabama", "WI" => "Wisconsin"}
+      response_types = %{{:error, :enoent} => :fatal, {:error, :busy} => :retry}
+      colors = %{:red => 0xff0000, :green => 0x00ff00; :blue => 0x0000ff}
+    Key types can differ
+      %{"one" => 1, :two => 2, {1, 1, 1} => 3}
+    Shortcut when key is atom
+      %{blue: 255, green: 65280, red: 16711680}
+    Keys must be unique, contrary to keyword list
+    Efficient to grow
+    Accessing
+      states["AL"]
+      colors[:red]
+      colors.green # only when key is atom
+
+  Binaries
+
+    Bits and bytes
+    e.g.
+      <<1, 2>>
+      <<3::size(2), 5::size(4), 1::size(2)>>
+
+  Names, Source Files, Conventions, Operators, and So On
+
+    Names
+      BumpyCase
+        Module
+        Record
+        Protocol
+        Behavior
+      snake_case
+        Others
+    Truth
+      false
+      nil (treated as false in Boolean context)
+      true (truthy: neither false nor nil in most contexts)
     Operators
-      ++
-      --
-      in
+      Comparison operators
+        a === b # strict equality, so 1 === 1.0 is false
+        a !== b # strict inequality, so 1 !== 1.0 is true
+        a == b # value equality, so 1 == 1.0 is true
+        a != b # value inequality, so 1 != 1.0 is false
+        a > b
+        a >= b
+        a < b
+        a <= b
+        ordering comparisons
+          number < atom < reference < function < port < pid < tuple < map < list < binary
+      Boolean operators
+        Strict: expect true or false as first argument
+          a or b # true if a is true, otherwise b
+          a and b # false if a is false, otherwise b
+          not a # false if a is true, true otherwise
+        Relaxed: take arguments of any type. Any value other than false or nil is true.
+          a || b # a if a is truthy, otherwise b
+          a && b # b if a is truthy, otherwise a
+          !a # false if a is truthy, otherwise true
+      Arithmatic operators
+        +
+        -
+        *
+        / # integer division yields floating point result, e.g. 2 / 1 => 2.0
+        div # div(a, b) gets integer result
+        rem # result has the same sign as first argument, e.g. rem(15, 4) => 3, rem(-15, 4) => -3
+      Join operators
+        binary1 <> binary2 # cancatenates two binaries
+        list1 ++ list2 # cancatenates two lists
+        list1 -- list2 # returns elements in list1 but not in list2
+      The in operator
+        a in enum # test if a is included in enum, e.g. a list or a range
+
+  Variable Scope
+
+    Lexically scoped
+      Variables (including parameters) defined in a function are local to that function.
+      Variables defined in a module are local.
+        They are only accessible at the top level of the module.
+        They are not accessible in functions defined in the module.
+      For
+      With
+    with
+      Defines a local scope for variables
+      Pattern matching
+        = would raise MatchError
+        <- would return the value that couldn't be matched
+      Gotcha
+        with is treated as if it were a call to function or macro,
+        so it must be followed by parameter or parenthesis on the same line
+
+  End of the Basics
+
+Chapter 5 Anonymous Functions
+
+  Functions and Pattern Matching
+
+    e.g.
+      swap = fn {a, b} -> {b, a} end
+
+  Your Turn
+
+    Exercise: Functions-1
+    Create the functions that do the following:
+
+      Q: list_concat().([:a, :b], [:c, :d]) # => [:a, :b, :c, :d]
+      A: list_concat = fn (list1, list2) -> list1 ++ list2 end
+
+      Q: sum.(1, 2, 3) # => 6
+      A: sum = fn(a, b, c) -> a + b + c end
+
+      Q: pair_tuple_to_list.({1234, 5678}) # => [1234, 5678]
+      A: pair_tuple_to_list = fn({a, b}) -> [a, b] end
+
+  One Function, Multiple Bodies
+  Functions Can Return Functions
+  Passing Functions As Arguments
+  Functions Are the Core
+
+Chapter 6 Modules and Named Functions
+
+  Compiling a Module
+  The Function’s Body Is a Block
+  Function Calls and Pattern Matching
+  Guard Clauses
+  Default Parameters
+  Private Functions
+  The Amazing Pipe Operator: |>
+  Modules
+  Module Attributes
+  Module Names: Elixir, Erlang, and Atoms
+  Calling a Function in an Erlang Library
+  Finding Libraries
+
+Chapter 7 Lists and Recursion
+
+  Heads and Tails
+  Using Head and Tail to Process a List
+  Using Head and Tail to Build a List
+  Creating a Map Function
+  Keeping Track of Values During Recursion
+  More Complex List Patterns
+  The List Module in Action
+  Get Friendly with Lists
+
+Chapter 8 Maps, Keyword Lists, Sets, and Structs
+
+  How to Choose Between Maps and Keyword Lists
   Keyword Lists
-    [name: "Dave", city: "Dallas", likes: "Programming"] =>
-    [{:name, "Dave"}, {:city, "Dallas"}, {:likes, "Programming"}]
-    May leave off the square brackets if a keyword list is the last element in a function call
-    May leave off the brackets if a keyword list appears as the last item in any conext where
-      a list of value is expected
+  Maps
+  Pattern Matching and Updating Maps
+  Updating a Map
+  Structs
+  Nested Dictionary Structures
+  Sets
+  With Great Power Comes Great Temptation
 
-Maps
-  Collection of key/value pairs
-  e.g.
-    states = %{"AL" => "Alabama", "WI" => "Wisconsin"}
-    response_types = %{{:error, :enoent} => :fatal, {:error, :busy} => :retry}
-    colors = %{:red => 0xff0000, :green => 0x00ff00; :blue => 0x0000ff}
-  Key types can differ
-    %{"one" => 1, :two => 2, {1, 1, 1} => 3}
-  Shortcut when key is atom
-    %{blue: 255, green: 65280, red: 16711680}
-  Keys must be unique, contrary to keyword list
-  Efficient to grow
-  Accessing
-    states["AL"]
-    colors[:red]
-    colors.green # only when key is atom
+Chapter 9 An Aside—What Are Types?
 
-Binaries
-  Bits and bytes
-  e.g.
-    <<1, 2>>
-    <<3::size(2), 5::size(4), 1::size(2)>>
+Chapter 10 Processing Collections—Enum and Stream
 
-Names
-  BumpyCase
-    Module
-    Record
-    Protocol
-    Behavior
-  snake_case
-    Others
+  Enum—Processing Collections
+  Streams—Lazy Enumerables
+  The Collectable Protocol
+  Comprehensions
+  Moving Past Divinity
 
-Truth
-  true (truthy: neither false nor nil in most contexts)
-  false
-  nil (treated as false in Boolean context)
+Chapter 11 Strings and Binaries
 
-Operators
-  Comparison operators
-    a === b # strict equality, so 1 === 1.0 is false
-    a !== b # strict inequality, so 1 !== 1.0 is true
-    a == b # value equality, so 1 == 1.0 is true
-    a != b # value inequality, so 1 != 1.0 is false
-    a > b
-    a >= b
-    a < b
-    a <= b
-    ordering comparisons
-      number < atom < reference < function < port < pid < tuple < map < list < binary
-  Boolean operators
-    Strict: expect true or false as first argument
-      a or b # true if a is true, otherwise b
-      a and b # false if a is false, otherwise b
-      not a # false if a is true, true otherwise
-    Relaxed: take arguments of any type. Any value other than false or nil is true.
-      a || b # a if a is truthy, otherwise b
-      a && b # b if a is truthy, otherwise a
-      !a # false if a is truthy, otherwise true
-  Arithmatic operators
-    +
-    -
-    *
-    / # integer division yields floating point result, e.g. 2 / 1 => 2.0
-    div # div(a, b) gets integer result
-    rem # result has the same sign as first argument, e.g. rem(15, 4) => 3, rem(-15, 4) => -3
-  Join operators
-    binary1 <> binary2 # cancatenates two binaries
-    list1 ++ list2 # cancatenates two lists
-    list1 -- list2 # returns elements in list1 but not in list2
-  The in operator
-    a in enum # test if a is included in enum, e.g. a list or a range
+  String Literals
+  The Name “strings”
+  Single-Quoted Strings—Lists of Character Codes
+  Binaries
+  Double-Quoted Strings Are Binaries
+  Binaries and Pattern Matching
+  Familiar Yet Strange
 
-Variable Scope
-  Lexically scoped
-    Variables (including parameters) defined in a function are local to that function.
-    Variables defined in a module are local.
-      They are only accessible at the top level of the module.
-      They are not accessible in functions defined in the module.
-    For
-    With
+Chapter 12 Control Flow
 
-with
-  Defines a local scope for variables
-  Pattern matching
-    = would raise MatchError
-    <- would return the value that couldn't be matched
-  Gotcha
-    with is treated as if it were a call to function or macro,
-    so it must be followed by parameter or parenthesis on the same line
+  if and unless
+  cond
+  case
+  Raising Exceptions
+  Designing with Exceptions
+  Doing More with Less
+
+Chapter 13 Organizing a Project
+
+  The Project: Fetch Issues from GitHub
+  Task: Use Mix to Create Our New Project
+  Transformation: Parse the Command Line
+  Step: Write Some Basic Tests
+  Transformation: Fetch from GitHub
+  Task: Use Libraries
+  Transformation: Convert Response
+  Transformation: Sort Data
+  Transformation: Take First n Items
+  Transformation: Format the Table
+  Task: Make a Command-Line Executable
+  Task: Add Some Logging
+  Task: Test the Comments
+  Task: Create Project Documentation
+  Coding by Transforming Data
+
+Part 2 Concurrent Programming
+
+Chapter 14 Working with Multiple Processes
+
+  A Simple Process
+  Process Overhead
+  When Processes Die
+  Parallel Map—The “Hello, World” of Erlang
+  A Fibonacci Server
+  Agents—A Teaser
+  Thinking in Processes
+
+Chapter 15 Nodes—The Key to Distributing Services
+
+  Naming Nodes
+  Naming Your Processes
+  I/O, PIDs, and Nodes
+  Nodes Are the Basis of Distribution
+
+Chapter 16 OTP: Servers
+
+  Some OTP Definitions
+  An OTP Server
+  GenServer Callbacks
+  Naming a Process
+  Tidying Up the Interface
+
+Chapter 17 OTP: Supervisors
+
+  Supervisors and Workers
+  Supervisors Are the Heart of Reliability
+
+Chapter 18 OTP: Applications
+
+  This Is Not Your Father’s Application
+  The Application Specification File
+  Turning Our Sequence Program into an OTP Application
+  Supervision Is the Basis of Reliability
+  Releasing Your Code
+  EXRM—the Elixir Release Manager
+  OTP Is Big—Unbelievably Big
+
+Chapter 19 Tasks and Agents
+
+  Tasks
+  Agents
+  A Bigger Example
+  Agents and Tasks, or GenServer?
+
+Part 3 More-Advanced Elixir
+
+Chapter 20 Macros and Code Evaluation
+
+  Implementing an if Statement
+  Macros Inject Code
+  Using the Representation As Code
+  Using Bindings to Inject Values
+  Macros Are Hygienic
+  Other Ways to Run Code Fragments
+  Macros and Operators
+  Digging Deeper
+  Digging Ridiculously Deep
+
+Chapter 21 Linking Modules: Behavio(u)rs and Use
+
+  Behaviours
+  Use and using
+  Putting It Together—Tracing Method Calls
+  Use use
+
+Chapter 22 Protocols—Polymorphic Functions
+
+  Defining a Protocol
+  Implementing a Protocol
+  The Available Types
+  Protocols and Structs
+  Build-In Protocols
+  Protocols Are Polymorphism
+
+Chapter 23 More Cool Stuff
+
+  Writing Your Own Sigils
+  Multi-app Umbrella Projects
+  But Wait! There’s More!
