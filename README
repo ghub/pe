@@ -389,17 +389,305 @@ Chapter 5 Anonymous Functions
 Chapter 6 Modules and Named Functions
 
   Compiling a Module
+
+    A named function is identified by
+      name
+      arity (number of parameters)
+
   The Function’s Body Is a Block
+
+    do...end
+      module definitions
+      named function definitions
+      control structures
+      other place where code needs to be handled as an entity
+
+    e.g.
+      single-line
+        def double(n), do: n * 2
+      multi-line
+        def greet(greeting, name), do: (
+          IO.puts greeting
+          IO.puts "How're you doing, #{name}?"
+        )
+
+  Your Turn
+
+    Exercise: ModulesAndFunctions-1
+    Extend the Times module with a triple function that multiplies its parameter by three.
+
+      defmodule Times do
+        def double(n), do: n * 2
+        def triple(n), do: n * 3
+      end
+
+    Exercise: ModulesAndFunctions-2
+    Run the result in iex. Use both techniques to compile the file.
+
+    Exercise: ModulesAndFunctions-3
+    Add a quadruple function. (Maybe it could call the double function.…)
+
+      defmodule Times do
+        def double(n), do: n * 2
+        def triple(n), do: n * 3
+        def quadruple(n), do: double(double(n))
+      end
+
   Function Calls and Pattern Matching
+
+    e.g.
+      defmodule Factorial do
+        def of(0), do: 1
+        def of(n), do: n * of(n-1)
+      end
+
+    Attention
+      Order of these clauses matter because they are tried top to bottom.
+      These clauses should be adjacent in the source file.
+
+  Your Turn
+
+    Exercise: ModulesAndFunctions-4
+    Implement and run a function sum(n) that uses recursion to calculate the sum of the integers from 1 to n.
+    You’ll need to write this function inside a module in a separate file.
+    Then load up iex, compile that file, and try your function.
+
+      defmodule Sum do
+        def sum(1), do: 1
+        def sum(n), do: n + sum(n-1)
+      end
+
+    Exercise: ModulesAndFunctions-5
+    Write a function gcd(x,y) that finds the greatest common divisor between two nonnegative integers.
+    Algebraically, gcd(x,y) is x if y is zero; it’s gcd(y, rem(x,y)) otherwise.
+
+      defmodule Gcd do
+        def gcd(x, 0), do: x
+        def gcd(x, y), do: gcd(y, rem(x, y))
+      end
+
   Guard Clauses
+
+    e.g.
+      defmodule Factorial do
+        def of(0), do: 1
+        def of(n) when n > 0 do
+          n * of(n-1)
+        end
+      end
+
+    Allowed expressions
+      Comparison operators
+        ==
+        !=
+        ===
+        !==
+        >
+        <
+        <=
+        >=
+      Boolean and negation operators
+        or
+        and
+        not
+        !
+        Note that || and && are not allowed.
+      Arithmetic operators
+        +
+        -
+        *
+        /
+      Join operators
+        <> and ++, as long as the left side is a literal.
+      The in operator
+        Membership in a collection or range
+      Type-check functions
+        is_atom
+        is_binary
+        is_bitstring
+        is_boolean
+        is_exception
+        is_float
+        is_function
+        is_integer
+        is_list
+        is_map
+        is_number
+        is_pid
+        is_port
+        is_record
+        is_reference
+        is_tuple
+      Other functions
+        abs(number)
+        bit_size(bitstring)
+        byte_size(bitstring)
+        div(number,number)
+        elem(tuple,
+        n)
+        float(term)
+        hd(list)
+        length(list)
+        node()
+        node(pid|ref|port)
+        rem(number,number)
+        round(number)
+        self()
+        tl(list)
+        trunc(number)
+        tuple_size(tuple)
+
   Default Parameters
+
+    param \\ value
+    e.g.
+      defmodule Example do
+        def func(p1, p2 \\ 2, p3 \\ 3, p4) do
+          IO.inspect [p1, p2, p3, p4]
+        done
+      end
+
+      Example.func("a", "b") # => ["a", 2, 3, "b"]
+      Example.func("a", "b", "c") # => ["a", "b", 3, "c"]
+      Example.func("a", "b", "c", "d") # => ["a", "b", "c", "d"]
+
+    Your Turn
+
+      Exercise: ModulesAndFunctions-6
+      I’m thinking of a number between 1 and 1000.…
+
+      The most efficient way to find the number is to guess halfway between the low and high numbers of the range.
+      If our guess is too big, then the answer lies between the bottom of the range and one less than our guess.
+      If our guess is too small, then the answer lies between one more than our guess and the end of the range.
+
+      Your API will be guess(actual, range), where range is an Elixir range.
+
+      Your output should look similar to this:
+        iex> Chop.guess(273, 1..1000)
+        Is it 500
+        Is it 250
+        Is it 375
+        Is it 312
+        Is it 281
+        Is it 265
+        Is it 273
+        273
+
+      Hints:
+        You may need to implement helper functions with an additional parameter (the currently guessed number).
+        The div(a,b) function performs integer division.
+        Guard clauses are your friends.
+        Patterns can match the low and high parts of a range (a..b=4..8).
+
+        defmodule Chop do
+          def guess(actual, range = low..high) do
+            mid = div(low + high, 2)
+            IO.puts "Is it #{mid}"
+            guess actual, range, mid
+          end
+
+          defp guess(actual, _..high, mid) when actual > mid do
+            guess actual, (mid + 1)..high
+          end
+
+          defp guess(actual, _, actual) do
+            actual
+          end
+
+          defp guess(actual, low.._, mid) when actual < mid do
+            guess actual, low..(mid - 1)
+          end
+        end
+
   Private Functions
+
+    defp
+    Both public and private functions can have multiple heads.
+    Can't spread the multiple heads between public and private.
+
   The Amazing Pipe Operator: |>
+
+    Always use paratheses around function parameters in pipelines.
+
   Modules
+
+    Provides namespaces for things you define
+      named functions
+      macros
+      structs
+      protocols
+      other modules
+    Module nesting is an illusion
+
+    Directives are lexically scoped
+      starts at the point the directive is encountered
+      stops at the end of the enclosing scope
+    import
+      import Module[, only:|except:]
+      import Module[, only: :functions|:macros]
+    alias
+      e.g.
+        alias Module.Parser, as Parser
+        alias Module.Parser
+        alias Module.{Parser, Runner}
+    require
+      to use macros defined in a module
+
   Module Attributes
+
+    metadata
+    @name value # declared at module level, accessible in functions
+    may be set multiple times
+
   Module Names: Elixir, Erlang, and Atoms
+
+    Elixir module names are just atoms
+      is_atom IO # => true
+      to_string IO # => "Elixir.IO"
+      :"Elixir.IO" === IO # => true
+      IO.puts 123 # => 123
+      :"Elixir.IO".puts 123 # => 123
+
   Calling a Function in an Erlang Library
+
+    Erlang variables start with an uppercase letter
+    Erlang atoms are simple lowercase names e.g. timer vs :timer in Elixir
+
   Finding Libraries
+
+    Elixir built-in
+    http://hex.pm
+    Github
+    Erlang built-in
+
+  Your Turn
+
+    Exercise: ModulesAndFunctions-7
+
+    Find the library functions to do the following, and then use each in iex.
+    (If the word Elixir or Erlang appears at the end of the challenge,
+    then you’ll find the answer in that set of libraries.)
+
+    Q: Convert a float to a string with two decimal digits. (Erlang)
+    A: :io.format("~.2f~n", [123.4567])
+
+    Q: Get the value of an operating-system environment variable. (Elixir)
+    A: System.get_env("PATH")
+    A: :os.getenv("PATH")
+
+    Q: Return the extension component of a file name (so return .exs if given "dave/test.exs"). (Elixir)
+    A: Path.extname("dave/test.exs")
+    A: :filename.extension("dave/test.exs")
+
+    Q: Return the process’s current working directory. (Elixir)
+    A: System.cwd()
+
+    Q: Convert a string containing JSON into Elixir data structures. (Just find; don’t install.)
+    A: Poison
+
+    Q: Execute a command in your operating system’s shell.
+    A: System.cmd("date", [])
+    A: :os.cmd("date") # (FunctionClauseError) no function clause matching in :os.validate/1
 
 Chapter 7 Lists and Recursion
 
