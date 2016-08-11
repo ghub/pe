@@ -892,13 +892,226 @@ Chapter 7 Lists and Recursion
 Chapter 8 Maps, Keyword Lists, Sets, and Structs
 
   How to Choose Between Maps and Keyword Lists
+
+    Only use Keyword Lists if
+      more than one entry use the same key, or
+      need to guarantee the elements are ordered
+
   Keyword Lists
+
+    Typically used in the context of options passed to functions
+    e.g.
+      defmodule Canvas do
+        @defaults [fg: "black", bg: "white", font: "Merriweather"]
+
+        def draw_text(text, options \\ []) do
+          options = Keyword.merge(@defaults, options)
+          IO.puts "Drawing text #{inspect(text)}"
+          IO.puts "Foreground:  #{options[:fg]}"
+          IO.puts "Background:  #{Keyword.get(options, :bg)}"
+          IO.puts "Font:        #{Keyword.get(options, :font)}"
+          IO.puts "Pattern:     #{Keyword.get(options, :pattern, "solid")}"
+          IO.puts "Style:       #{inspect Keyword.get_values(options, :style)}"
+        end
+      end
+
+      Canvas.draw_text("hello", fg: "red", style: "italic", style: "bold")
+
+      # =>
+      #   Drawing text "hello"
+      #   Foreground:  red
+      #   Background:  white
+      #   Font:        Merriweather
+      #   Pattern:     solid
+      #   Style:       ["italic", "bold"]
+
   Maps
+
+    e.g.
+      map = %{name: "Dave", likes: "Programming", where: "Dallas"}
+      Maps.keys map # => [:likes, :name, :where]
+      Maps.values map # => ["Programming", "Dave", "Dallas"]
+      map[:name] # => "Dave"
+      map.name # => "Dave"
+      map1 = Map.drop map, [:where, :likes] # => %{name: "Dave"}
+      map2 = Map.put map, :also_likes, "Ruby"
+      # => %{also_likes: "Ruby", likes: "Programming", name: "Dave", where: "Dallas"}
+      Map.keys map2 # => [:also_likes, :like, :name, :where]
+      Map.has_key? map1, :where # => false
+      {value, updated_map} = Map.pop map2, :also_likes
+      # => {"Ruby", %{likes: "Programming", name: "Dave", where: "Dallas"}}
+      Map.equal? map, updated_map # => true
+
   Pattern Matching and Updating Maps
+
+    Do you have the following keys (and maybe values)?
+
+    e.g.
+      Given person = %{name: "Dave", height: 1.88}
+
+      Is there an entry with the key :name?
+      %{name: a_name} = person # => a_name = "Dave"
+
+      Are there entries for the keys :name and :height?
+      %{name: _, height: _} = person
+
+      Does the entry with key :name have the value "Dave"?
+      %{name: "Dave"} = person
+
+      people = [
+        %{name: "Grumpy",    height: 1.24},
+        %{name: "Dave",      height: 1.88},
+        %{name: "Dopey",     height: 1.32},
+        %{name: "Shaquille", height: 2.16},
+        %{name: "Sneezy",    height: 1.28}
+      ]
+
+      IO.inspect(for person = %{height: height} <- people, height > 1.5, do: person)
+      # => [%{height: 1.88, name: "Dave"}, %{height: 2.16, name: "Shaquille"}]
+
+      defmodule HotelRoom do
+        def book(%{name: name, height: height})
+        when height > 1.9 do
+          IO.puts "Need extra long bed for #{name}"
+        end
+
+        def book(%{name: name, height: height})
+        when height < 1.3 do
+          IO.puts "Need low shower controls for #{name}"
+        end
+
+        def book(person) do
+          IO.puts "Need regular bed for #{person.name}"
+        end
+      end
+
+      people |> Enum.each(&HotelRoom.book/1)
+
+      # =>
+      # Need low shower controls for Grumpy
+      # Need regular bed for Dave
+      # Need regular bed for Dopey
+      # Need extra long bed for Shaquille
+      # Need low shower controls for Sneezy
+
+    Pattern Matching Can’t Bind Keys
+
+      e.g. the following is illegal
+        %{ item => :ok } = %{ 1 => :ok, 2 => :error }
+
+    Pattern Matching Can Match Variable Keys
+
+      e.g.
+        data = %{name: "Dave", state: "TX", likes: "Elixir"}
+        for key <- [:name, :likes] do
+          %{^key => value} = data
+          value
+        end
+        # => ["Dave", "Elixir"]
+
   Updating a Map
+
+    new_map = %{old_map | key => value, ...}
+    e.g.
+      m = %{a: 1, b: 2, c: 3}
+      m1 = %{m | b: "two", c: "three"} # => m1 = {a: 1, b: "two", c: "three"}
+    use Map.put_new/3 to add a new key
+
   Structs
+
+    a module
+    wraps a map that
+      only use atoms for keys
+      lacks Dict capability
+    e.g.
+      defmodule Subscriber do
+        defstruct name: "", paid: false, over_18: true
+      end
+
+      # Create
+      s1 = %Subscriber{}
+      # => %Subscriber{name: "", over_18: true, paid: false}
+      s2 = %Subscriber{name: "Dave"}
+      # => %Subscriber{name: "Dave", over_18: true, paid: false}
+      s3 = %Subscriber{name: "Mary", paid: true}
+      # => %Subscriber{name: "Mary", over_18: true, paid: true}
+
+      # Read
+      s3.name # => "Mary"
+      %Subscriber{name: a_name} = s3 # => a_name = "Mary"
+
+      # Write
+      # Return new copy
+      s4 = %Subscriber{s3 | name: "Marie"}
+      # => %Subscriber{name: "Marie", over_18: true, paid: true}
+
   Nested Dictionary Structures
+
+    e.g.
+      defmodule Customer do
+        defstruct name: "", company: ""
+      end
+
+      defmodule BugReport do
+        defstruct owner: %Customer{}, details: "", severity: 1
+      end
+
+      report = %BugReport{owner: %Customer{name: "Dave", company: "Pragmatic"},
+                          details: "Broken"}
+
+      put_in(report.owner.company, "PragProg")
+      update_in(report.owner.name, &("Mr. " <> &1))
+
+    Nested Accessors and Nonstructs
+
+      # Macros, operate at compile time
+      #   number of keys passed to a call are static
+      #   can't pass the set of keys as parameters between functions
+      report = %{owner: %{name: "Dave", company: "Pragmatic"}, severity: 1}
+      put_in(report[:owner][:company], "PragProg")
+      update_in(report[:owner][:name], &("Mr. " <> &1))
+
+      # Functions, dynamic
+      get_in(report, [:owner, :name])
+
+      Compare
+                          Macro         Function
+        get_in            no            (dict, keys)
+        put_in            (path, value) (dict, keys, value)
+        update_in         (path, fn)    (dict, keys, fn)
+        get_and_update_in (path, fn)    (dict, keys, fn)
+
+      Trick
+
+        authors = [
+          %{name: "Jose", language: "Elixir"},
+          %{name: "Matz", language: "Ruby"},
+          %{name: "Larry", language: "Perl"}
+        ]
+
+        language_with_an_r = fn(:get, collection, next_fn) ->
+          for row <- collection do
+            if String.contains?(row.language, "r") do
+              next_fn.(row)
+            end
+          end
+        end
+
+        IO.inspect get_in(authors, [language_with_an_r, :name])
+        # => ["Jose", nil, "Larry"]
+
   Sets
+
+    Just MapSet
+
+    set1 = Enum.into 1..5, MapSet.new # => set1 = #MapSet<[1, 2, 3, 4, 5]>
+    MapSet.member? set1, 3 # => true
+    set1 = Enum.into 3..8, MapSet.new # => set2 = #MapSet<[3, 4, 5, 6, 7, 8]>
+    MapSet.union set1, set2 # => #MapSet<[1, 2, 3, 4, 5, 6, 7, 8]>
+    MapSet.difference set1, set2 # => #MapSet<[1, 2]>
+    MapSet.difference set2, set1 # => #MapSet<[6, 7, 8]>
+    MapSet.intersection set2, set1 # => #MapSet<[3, 4, 5]>
+
   With Great Power Comes Great Temptation
 
 Chapter 9 An Aside—What Are Types?
